@@ -15,6 +15,25 @@ for word in VERB_TYPES:
 # List of words the parser should ignore:
 IGNORED_WORDS = ["on", "the", "to"]
 
+class GameEvent:
+    # This class defines text output events, as well as the effects they may have on other game objects
+    def __init__(self, event_text, repeatable = True, target = None, effect = None):
+        self.event_text = event_text
+        self.repeatable = repeatable
+        self.target = target # May be room or item
+        self.effect = effect
+        self.expired = False
+
+    def fire_event(self):
+        if not self.repeatable:
+            self.expired = True
+        
+        if self.target:
+            # Execute any changes to the target here
+            pass
+        return self.event_text 
+
+
 class GameItem:
     def __init__(self, item_name:str, item_alt_names:list = [], target = None, grabbable = False):
         self.name = item_name
@@ -22,10 +41,13 @@ class GameItem:
         self.target = target
         self.grabbable = grabbable
         self.look_event = None
+        self.on_use = None
 
     def set_item_target(self, newTarget):
         self.target = newTarget
 
+    def get_item_events(self):
+        pass # would return the list of events 
 
 
 
@@ -83,3 +105,14 @@ class GameParser:
         output = [None, None, None]
         nouns = self.get_allowed_nouns()
         word_list = string_to_parse.split()
+        if word_list[1] in VERB_TYPES["move"]:
+            print("MOVE")
+        elif word_list[1] in VERB_TYPES["look"]:
+            print("LOOK")
+        elif word_list[1] in VERB_TYPES["take"]:
+            print("TAKE")
+        elif word_list[1] in VERB_TYPES["use"]:
+            print("USE")
+
+
+

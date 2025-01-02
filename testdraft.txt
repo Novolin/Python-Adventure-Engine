@@ -1,0 +1,47 @@
+{
+    "start_room":"Entry",
+    "start_inventory":"None",
+    "end_room":"Exit",
+    "rooms":{
+        "Entry":{
+            "name":"Entry"
+            "description":"A dim entryway"
+            "objects":["key"],
+            "neighbors":{"E":"Hall"}
+        },
+        "Hall":{
+            "name":"Hall"
+            "description":"A dark hallway, with a small light switch",
+            "objects":["lightswitch", "door"],
+            "neighbors":{"W":{"open":"Entry"}, "S":{"locked":"Exit"}}
+        },
+        "Exit":{
+            "name":"Outside
+            "description":"The Exit!"
+            "objects":[],
+            "neighbors":{"N":"Hall"},
+            
+        }
+    },
+    "items":{
+        "key":{
+            "description":"A Small, shiny key.",
+            "target":"door",
+            "usable":True,
+            "grabbable":True
+            "target_type":"lock"
+        },
+        "door":{
+            "description":"A Locked door.",
+            "target":"unlocked_door",
+            "usable":"The door is locked."
+            "grabbable":False,
+            "target_type":"unlock"
+        },
+        "unlocked_door":{
+            "description":"A formerly locked door, leading to the exit.",
+            "usable":"The door is open and unlocked"
+            "grabbable":False
+        }
+    }
+}
