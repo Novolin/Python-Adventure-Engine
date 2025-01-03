@@ -1,7 +1,6 @@
 # V0.0.1 - super super super early
 
-
-# Not even bothering to import anything yet since idk what I'll need
+from collections import deque
 
 VERB_TYPES = { # List of valid global verbs, and their synonyms.
     "move":["move", "go", "walk", "run", "enter"],
@@ -9,11 +8,28 @@ VERB_TYPES = { # List of valid global verbs, and their synonyms.
     "take":["take", "get", "grab", "pickup", "steal", "pick"],
     "look":["look", "examine", "see", "inspect", "observe", "peek", "check"]
 }
-GLOBAL_VERB_LIST = [] # list of verbs that will always be available
-for word in VERB_TYPES:
-    GLOBAL_VERB_LIST.extend(VERB_TYPES[word])
+DIRECTION_WORDS = {
+    "U":["u","up", "higher"],
+    "D":["d","down","lower"],
+    "N":["n","north","nort"],
+    "E":["e","east","est"],
+    "W":["w","west","weast"],
+    "S":["s", "south", "sout"]
+}
+
 # List of words the parser should ignore:
-IGNORED_WORDS = ["on", "the", "to"]
+IGNORED_WORDS = ["on", "the", "to", "a"]
+
+def get_synonym(word, room): # returns the appropriate synonym for a word. 
+    if word.lower() in IGNORED_WORDS:
+        return False # invalid word.
+    for i in DIRECTION_WORDS:
+        if word.lower() in DIRECTION_WORDS[i]:
+            return i
+    for i in room.items:
+        if word in i.get_item_names():
+            return i
+    return False # no synonym found!
 
 class GameEvent:
     # This class defines text output events, as well as the effects they may have on other game objects
@@ -49,6 +65,11 @@ class GameItem:
     def get_item_events(self):
         pass # would return the list of events 
 
+    def get_item_names(self):
+        namelist = [self.name]
+        namelist.extend(self.alt_nouns)
+        return namelist
+
 
 
 class GameRoom: # Parent class for rooms in the game
@@ -70,9 +91,8 @@ class GameRoom: # Parent class for rooms in the game
         # adds a neighbor room to the list of rooms
         if not self.neighbors[direction][state]:
             self.neighbors[direction][state] = neighbor
-            return
-        print("{direction} neighbor slot in {neighbor} already filled.")
-        raise ValueError
+            return True
+        return False # already taken!
 
     def get_nouns(self):
         noun_list = {}
@@ -83,16 +103,21 @@ class GameRoom: # Parent class for rooms in the game
                     noun_list[n] = i
         for n in self.neighbors:
             noun_list[n] = self.neighbors[n]["open"]
+
+
+
+
 class GameParser:
     # object to handle string decoding
     def __init__(self, start_room = 0, start_inventory = []):
         self.current_room = start_room # What room are we starting the game in
         self.current_items = start_inventory # Items we have in our starting inventory
+        self.event_queue = deque((), 16) # List of events that need to be fired.
         
 
     def get_allowed_nouns(self):
-        # returns a list of allowed words
-        allowed_words = []
+        # returns a dict of allowed words
+        allowed_words = {"rooms":[], "items":[]}
         allowed_words.extend(self.current_room.get_nouns())
         for i in self.current_items:
             allowed_words.append(i.get_nouns())
@@ -105,14 +130,34 @@ class GameParser:
         output = [None, None, None]
         nouns = self.get_allowed_nouns()
         word_list = string_to_parse.split()
-        if word_list[1] in VERB_TYPES["move"]:
-            print("MOVE")
-        elif word_list[1] in VERB_TYPES["look"]:
-            print("LOOK")
-        elif word_list[1] in VERB_TYPES["take"]:
-            print("TAKE")
-        elif word_list[1] in VERB_TYPES["use"]:
-            print("USE")
+
+        if word_list[0] in VERB_TYPES["move"]:
+            output[0] = "move"
+            output[1] = "player"
+            can_move = False
+            next_word = 0
+            while not can_move:
+                next_word += 1
+                if next_word >= len(word_list):
+                    # We haven't found a match.
+                    break
+                can_move = get_synonym(word_list[next_word], self.room)
+            output[2] = can_move 
+        else:
+            print("NOT READY TO DO THAT YET")
+        return output
+
+    def execute_parsed_cmd(self, parse_list:list):
+        if parse_list[0] == "move":
+            print("I WOULD DO A MOVE HERE!")
 
 
 
+    def parse_loop(self, input_source):
+        # this is where we would load data
+        next_string = "starting....."
+        while True:
+            print(next_string)
+            if input_source == "console":
+                parsed = self.parse_incoming_string(input("ENTER COMMAND> "))
+                if parsed[0] == "move":
