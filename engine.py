@@ -161,3 +161,4 @@ class GameParser:
             if input_source == "console":
                 parsed = self.parse_incoming_string(input("ENTER COMMAND> "))
                 if parsed[0] == "move":
+                    print("ASS")
