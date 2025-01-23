@@ -2,6 +2,34 @@
 
 from collections import deque
 
+class TextInterface:
+    # Parent class for text i/o interfaces
+    def __init__(self, allcaps = False, limit_chars = False):
+        self.allcaps = allcaps
+        self.limit_chars = limit_chars
+        self.last_player_input = None
+        self.buffered_input_string = "" # in case it may come in pieces, like over UART or TTY or whatnot
+
+    def write(self, text:str):
+        # Writes the given string to the interface. 
+        # Placeholder
+        print(text)
+
+    def prompt(self, prompt:str = ">"):
+        # Prompt user for input 
+        get_player_input = input(prompt)
+        self.last_player_input = get_player_input
+        return get_player_input
+
+    def get_last_input(self):
+        return self.last_player_input # this is less important on a 
+
+class ConsoleInterface(TextInterface):
+    def __init__(self):
+        super().__init__()
+        # placeholders are written to use the console so we are good to go!
+
+
 VERB_TYPES = { # List of valid global verbs, and their synonyms.
     "move":["move", "go", "walk", "run", "enter"],
     "use":["use", "try", "insert", "open", "unlock"],
@@ -109,10 +137,11 @@ class GameRoom: # Parent class for rooms in the game
 
 class GameParser:
     # object to handle string decoding
-    def __init__(self, start_room = 0, start_inventory = []):
+    def __init__(self, input_handler:TextInterface, start_room = 0, start_inventory = []):
         self.current_room = start_room # What room are we starting the game in
         self.current_items = start_inventory # Items we have in our starting inventory
         self.event_queue = deque((), 16) # List of events that need to be fired.
+        self.io = input_handler
         
 
     def get_allowed_nouns(self):
@@ -162,3 +191,7 @@ class GameParser:
                 parsed = self.parse_incoming_string(input("ENTER COMMAND> "))
                 if parsed[0] == "move":
                     print("ASS")
+
+
+
+    
