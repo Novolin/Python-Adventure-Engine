@@ -52,11 +52,10 @@ class GameEvent:
         #TODO: If there's an effect, fire it here
 
 class GameItem:
-    def __init__(self, item_name:str, item_alt_names:list = [], target = None, grabbable = False):
-        self.name = item_name
-        self.alt_nouns = item_alt_names
-        self.target = target
-        self.grabbable = grabbable
+    def __init__(self, name:str, item_data):
+        self.name = name
+        self.alt_nouns = item_data["synonyms"]
+        self.grabbable = item_data["grabbable"]
         self.look_event = None
         self.on_use = None
 
@@ -113,7 +112,6 @@ class GameRoom: # Parent class for rooms in the game
 
 
 
-# NOTE: ADD GLOBAL SAVE/LOAD/EXIT EVENTS!
 
 
 class GameParser:
@@ -134,7 +132,7 @@ class GameParser:
                 self.rooms[room] = GameRoom(room)
                 for contained_item in self.rooms[room]["items"]:
                     item_to_add = GameItem(contained_item) # LOGGING OFF HERE FOR TONIGHT MY BRAIN IS FRIEIEEIDID
-
+                    # oh god i have to rewrite the item code 
 
 
         self.io.write("Complete!")
