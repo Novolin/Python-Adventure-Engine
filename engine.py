@@ -61,10 +61,11 @@ def get_synonym(word, room): # returns the appropriate synonym for a word.
 
 class GameEvent:
     # This class defines text output events, as well as the effects they may have on other game objects
-    def __init__(self, event_text, repeatable = True, target = None, effect = None):
+    def __init__(self, event_text, event_trigger, repeatable = True, required_item = None, effect = None):
         self.event_text = event_text
+        self.trigger = event_trigger
         self.repeatable = repeatable
-        self.target = target # May be room or item
+        self.required_item = required_item # May be room or item
         self.effect = effect
         self.expired = False
 
@@ -72,7 +73,7 @@ class GameEvent:
         if not self.repeatable:
             self.expired = True
         
-        if self.target:
+        if self.effect:
             # Execute any changes to the target here
             pass
         return self.event_text 
@@ -89,9 +90,6 @@ class GameItem:
 
     def set_item_target(self, newTarget):
         self.target = newTarget
-
-    def get_item_events(self):
-        pass # would return the list of events 
 
     def get_item_names(self):
         namelist = [self.name]
@@ -112,8 +110,13 @@ class GameRoom: # Parent class for rooms in the game
             "D":{"open":None,"locked":None,"hidden":None}, 
             }
         self.items = []
+        self.events = []
         self.enter_event = None
         self.look_event = None
+
+    def load_room_data(self, data_as_obj):
+        # Interprets a loaded json object dealio and makes it the room.
+        pass
 
     def add_neighbor(self, neighbor, direction, state = "open"):
         # adds a neighbor room to the list of rooms
@@ -142,7 +145,9 @@ class GameParser:
         self.current_items = start_inventory # Items we have in our starting inventory
         self.event_queue = deque((), 16) # List of events that need to be fired.
         self.io = input_handler
-        
+        # This is probaly not the most efficient way, but i think memory for text is so small i can get away with it.
+        self.room_list = [] # All rooms in the game
+        self.item_list = [] # all items in the game
 
     def get_allowed_nouns(self):
         # returns a dict of allowed words
