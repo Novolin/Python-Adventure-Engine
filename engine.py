@@ -78,7 +78,7 @@ class GameEvent:
             pass
         return self.event_text 
 
-
+### FOR NOW DONT WORRY ABOUT ITEMS, JUST GET ROOMS AND MOVEMENT WORKING
 class GameItem:
     def __init__(self, item_name:str, item_alt_names:list = [], target = None, grabbable = False):
         self.name = item_name
@@ -95,8 +95,15 @@ class GameItem:
         namelist = [self.name]
         namelist.extend(self.alt_nouns)
         return namelist
+    
+    def use_item(self, used_on = None):
+        # Use the item with another object. Returns event if we can, False if not.
+        valid_use = False # is this a valid use of the object
+        if self.target != used_on:
+            if self.target:
+                pass
 
-
+#######
 
 class GameRoom: # Parent class for rooms in the game
     def __init__(self, room_name:str):
